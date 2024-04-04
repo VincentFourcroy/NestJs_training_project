@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Users } from 'src/users/users.entity'
 import * as bcrypt from 'bcrypt'
+import { JwtService } from '@nestjs/jwt'
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    private jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<Users> {
@@ -30,6 +32,13 @@ export class AuthService {
         'Either email or password is invalid.',
         HttpStatus.UNAUTHORIZED,
       )
+    }
+  }
+
+  async login(user: any) {
+    const payload = { username: user.name, sub: user.role }
+    return {
+      access_token: this.jwtService.sign(payload),
     }
   }
 }
