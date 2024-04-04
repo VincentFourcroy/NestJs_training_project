@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { join } from 'path'
 import { PropertiesModule } from './properties/properties.module'
+import { AuthModule } from './auth/auth.module'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PropertiesModule } from './properties/properties.module'
     }),
     UsersModule,
     PropertiesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
