@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Properties } from './properties.entity'
@@ -18,90 +13,72 @@ export class PropertiesService {
   ) {}
 
   async findAll(): Promise<Properties[]> {
-    try {
-      const allProperties = await this.propertiesRepository.find()
-      return allProperties
-    } catch (error) {
-      console.error('An error occured while fetching the properties: ', error)
-      throw error
-    }
+    const allProperties = await this.propertiesRepository.find()
+    return allProperties
   }
 
   async findOne(id: number): Promise<Properties> {
-    try {
-      const propertyById = await this.propertiesRepository
-        .createQueryBuilder('property')
-        .select([
-          'property.id',
-          'property.name',
-          'property.values',
-          'createdBy.name',
-        ])
-        .leftJoin('property.createdBy', 'createdBy')
-        .where('property.id = :id', { id })
-        .getOne()
+    const propertyById = await this.propertiesRepository
+      .createQueryBuilder('property')
+      .select([
+        'property.id',
+        'property.name',
+        'property.values',
+        'createdBy.name',
+      ])
+      .leftJoin('property.createdBy', 'createdBy')
+      .where('property.id = :id', { id })
+      .getOne()
 
-      if (!propertyById) {
-        throw new HttpException(
-          'No such property found in Database',
-          HttpStatus.NOT_FOUND,
-        )
-      }
-
-      return propertyById
-    } catch (error) {
-      console.error('An error occured while fetching the property: ', error)
-      // throw error
+    if (!propertyById) {
+      throw new HttpException(
+        'No such property found in Database',
+        HttpStatus.NOT_FOUND,
+      )
     }
+
+    return propertyById
   }
 
   async create(createPropertyDto: CreatePropertyDto): Promise<Properties> {
-    try {
-      const newProperty = createPropertyDto
+    const newProperty = createPropertyDto
 
-      await this.propertiesRepository.save(newProperty)
+    await this.propertiesRepository.save(newProperty)
 
-      return newProperty
-    } catch (error) {
-      console.error('An error occured while creating the property: ', error)
-      throw error
-    }
+    return newProperty
   }
 
   async update(
     id: number,
     updatePropertyDto: UpdatePropertyDto,
   ): Promise<Properties> {
-    try {
-      const propertyToUpdate = await this.propertiesRepository.findOne({
-        where: { id },
-      })
+    const propertyToUpdate = await this.propertiesRepository.findOne({
+      where: { id },
+    })
 
-      if (!propertyToUpdate)
-        throw new NotFoundException('No such property found in Database')
+    if (!propertyToUpdate)
+      throw new HttpException(
+        'No such property found in Database',
+        HttpStatus.NOT_FOUND,
+      )
 
-      Object.assign(propertyToUpdate, { ...updatePropertyDto })
+    Object.assign(propertyToUpdate, { ...updatePropertyDto })
 
-      await this.propertiesRepository.save(propertyToUpdate)
+    await this.propertiesRepository.save(propertyToUpdate)
 
-      return propertyToUpdate
-    } catch (error) {
-      console.error('An error occured while updating the property: ', error)
-      throw error
-    }
+    return propertyToUpdate
   }
 
   async delete(id: number): Promise<void> {
-    try {
-      const propertyToDelete = await this.propertiesRepository.findOne({
-        where: { id },
-      })
-      await this.propertiesRepository.delete(id)
-      if (!propertyToDelete)
-        throw new NotFoundException('No such property found in Database')
-    } catch (error) {
-      console.error('An error occured while deleting the property: ', error)
-      throw error
+    const propertyToDelete = await this.propertiesRepository.findOne({
+      where: { id },
+    })
+    await this.propertiesRepository.delete(id)
+    if (!propertyToDelete) {
+      throw new HttpException(
+        'No such property found in Database',
+        HttpStatus.NOT_FOUND,
+      )
     }
   }
 }
