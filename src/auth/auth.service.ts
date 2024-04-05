@@ -36,9 +36,18 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.name, sub: user.role }
+    const payload = { username: user.name, sub: user.role, userId: user.id }
     return {
-      access_token: this.jwtService.sign(payload),
+      token: this.jwtService.sign(payload),
+    }
+  }
+
+  verifyToken(token: string) {
+    try {
+      const decodedToken = this.jwtService.verify(token)
+      return decodedToken.userId
+    } catch (error) {
+      throw new Error('Invalid token')
     }
   }
 }

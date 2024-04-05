@@ -8,10 +8,12 @@ import {
   Post,
   ParseIntPipe,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common'
 import { PropertiesService } from './properties.service'
 import { CreatePropertyDto } from './dto/create-property.dto'
 import { UpdatePropertyDto } from './dto/update-property.dto'
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 
 @Controller('properties')
 export class PropertiesController {
@@ -27,11 +29,13 @@ export class PropertiesController {
     return this.propertiesService.findOne(id)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('create') // /properties/create
   create(@Body(ValidationPipe) createPropertyDto: CreatePropertyDto) {
     return this.propertiesService.create(createPropertyDto)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('update/:id') // /properties/update/:id
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -40,6 +44,7 @@ export class PropertiesController {
     return this.propertiesService.update(id, updateUserDto)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('delete/:id') // /properties/delete/:id
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.propertiesService.delete(id)
